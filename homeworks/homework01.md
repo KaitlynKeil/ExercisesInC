@@ -4,7 +4,12 @@
 
 [Here is a link to the ex01 directory in my repository](https://github.com/KaitlynKeil/ExercisesInC/tree/master/exercises/ex01)
 
+=======
+
 ### Think OS Chapter 1 reading questions
+
+For each of the reading questions below, write answers in the form of
+a clear, concise, complete sentence or two.
 
 1) Give an example of a feature common in interpreted languages that is rare in compiled languages.
 
@@ -28,8 +33,7 @@ Optimization tends to make debugging less clear, since all the steps are written
 
 Different machines run on different architectures, which will use different assembly languages.
 
-6) If you spell a variable name wrong, or if you spell a function name wrong, the error messages 
-you get might look very different.  Why?
+6) If you spell a variable name wrong, or if you spell a function name wrong, the error messages you get might look very different.  Why?
 
 An incorrect variable name will complain about the variable not having been defined. Calling a misspelled function will search through all the included files and return that it couldn't find it.
 

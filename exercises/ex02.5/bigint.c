@@ -32,8 +32,15 @@ s: string
 returns: string
 */
 char *reverse_string(char *s) {
-    //TODO: Fill this in.
-    return "";
+    int l = strlen(s);
+    char *rev = malloc(l+1); // allocate the necessary space
+    int i;
+    
+    for(i = 0; i < l; i++){
+        rev[i] = s[l-i-1];
+    }
+    rev[l] = '\0'; // add termination character
+    return rev;
 }
 
 /* ctoi: Converts a character to integer.
@@ -52,8 +59,9 @@ i: integer 0 to 9
 returns: character '0' to '9'
 */
 char itoc(int i) {
-    //TODO: Fill this in, with an appropriate assertion.
-    return '0';
+    char c = i +'0';
+    assert(isdigit(c));
+    return c;
 }
 
 /* add_digits: Adds two decimal digits, returns the total and carry.
@@ -69,7 +77,10 @@ carry: pointer to char
 
 */
 void add_digits(char a, char b, char c, char *total, char *carry) {
-    //TODO: Fill this in.
+    int ai = ctoi(a), bi = ctoi(b), ci = ctoi(c); // Convert all to ints
+    int ti = ai + bi + ci; // Add ints
+    if(ti > 9) {*carry = '1'; *total = itoc(ti - 10);} // check if there is a carry, modify total to be one character
+    else {*carry = '0'; *total = itoc(ti);} // otherwise, return total as is (single character)
 }
 
 /* Define a type to represent a BigInt.
@@ -125,6 +136,7 @@ void add_bigint(BigInt x, BigInt y, char carry_in, BigInt z) {
     // and make a recursive call to fill in the rest.
     add_bigint(x+dx, y+dy, carry_out, z+dz);
 }
+
 
 /* print_bigint: Prints the digits of BigInt in the normal order.
 
@@ -196,11 +208,13 @@ void test_add_bigint() {
     }
 }
 
+
 int main (int argc, char *argv[])
 {
     test_reverse_string();
     test_itoc();
     test_add_digits();
+    test_add_bigint();
 
     //TODO: When you have the first three functions working,
     //      uncomment the following, and it should work.

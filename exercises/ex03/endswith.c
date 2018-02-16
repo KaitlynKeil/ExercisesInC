@@ -26,8 +26,11 @@ suffix: string
 returns: 1 if true, 0 otherwise
 */
 int endswith(char *s, char *suffix)
-{
-    // TODO: Fill this in!
+{   
+    size_t s_len = strlen(s);
+    size_t suf_len = strlen(suffix);
+    if(strcmp(s + s_len - suf_len, suffix) == 0)
+        return 1;
     return 0;
 }
 

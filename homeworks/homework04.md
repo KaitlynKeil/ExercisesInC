@@ -47,6 +47,3 @@ If you would like to learn more about file systems, a good next step is to learn
 Start with [this Wikipedia article](https://en.wikipedia.org/wiki/Journaling_file_system), then 
 [Anatomy of Linux Journaling File Systems](http://www.ibm.com/developerworks/library/l-journaling-filesystems/index.html).  
 Also consider reading [this USENIX paper](https://www.usenix.org/legacy/event/usenix05/tech/general/full_papers/prabhakaran/prabhakaran.pdf).
-
-
-

@@ -4,176 +4,179 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
+#include <errno.h>
 #include <getopt.h>
 
-static int help_flag, version_flag;
-void help_disp();
-void version_disp();
+static int append_flag;
+static int error_mode;
+int help_disp();
+int version_disp();
+int tee_loop(int nfiles, char **files);
 
-// -a, --append
-//               append to the given FILEs, do not overwrite
+enum output_error {
+	  output_error_default,		 /* warn on non pipe, exit on pipe */
+      output_error_warn,         /* warn on EPIPE, but continue.  */
+      output_error_warn_nopipe,  /* ignore EPIPE, continue.  */
+      output_error_exit,         /* exit on any output error.  */
+      output_error_exit_nopipe   /* exit on any output error except EPIPE.  */	
+};
 
-//        -i, --ignore-interrupts
-//               ignore interrupt signals
+static struct option long_options[] = 
+		{
+			{"help",              no_argument,       0,     'h'},
+			{"version",           no_argument,       0,     'v'},
+			{"append",            no_argument,       0,     'a'},
+			{"output-error",      required_argument, 0,     'o'},
+			{"ignore-interrupts", no_argument,       0,     'i'},
+			{0, 0, 0, 0}
+		};
 
-//        -p     diagnose errors writing to non pipes
-
-//        --output-error[=MODE]
-//               set behavior on write error.  See MODE below
-
-//        --help display this help and exit
-
-//        --version
-//               output version information and exit
-// MODE determines behavior with write errors on the outputs:
-//        'warn' diagnose errors writing to any output
-
-//        'warn-nopipe'
-//               diagnose errors writing to any output not a pipe
-
-//        'exit' exit on error writing to any output
-
-//        'exit-nopipe'
-//               exit on error writing to any output not a pipe
-
-//        The default MODE for the -p option is 'warn-nopipe'.  The default
-//        operation when --output-error is not specified, is to exit
-//        immediately on error writing to a pipe, and diagnose errors writing
-//        to non pipe outputs.
-
+/* main sets up the system for the loop */
 int main(int argc, char *argv[]) {
-	int c;
+	int c, exitval; // keeps track of status
+	error_mode = output_error_default; // Unless set otherwise, output the default errors
+	while((c = getopt_long (argc, argv, "ahvo:ip", long_options, NULL)) != -1) {
+		// as long as there is an argument to read, keep reading arguments
+		switch (c) {
+			case 'a':
+				append_flag = 1;
+				break;
 
-	while (1)
-    {
-      static struct option long_options[] =
-        {
-          /* These options set a flag. */
-          {"help",     no_argument,      &help_flag, 1},
-          {"version",  no_argument,		 &version_flag,  1},
-          /* These options don’t set a flag.
-             We distinguish them by their indices. */
-          {"append",  no_argument,       0, 'a'},
-          {"output-error", required_argument, 0, 'o'},
-          {"ignore-interrupts", no_argument, 0, 'i'},
-          {0, 0, 0, 0}
-        };
-      /* getopt_long stores the option index here. */
-      int option_index = 0;
+			case 'h':
+				exit(help_disp());
 
-      c = getopt_long (argc, argv, "ao:ip",
-                       long_options, &option_index);
+			case 'v':
+				exit(version_disp());
 
-      /* Detect the end of the options. */
-      if (c == -1)
-        break;
+			case 'o':
+	            /* Assigns the mode for error behaviour */
+				if(strcmp(optarg, "warn") == 0) {
+					error_mode = output_error_warn;
+				}
+				else if(strcmp(optarg, "warn-nopipe") == 0) {
+					error_mode = output_error_warn_nopipe;
+				}
+				else if(strcmp(optarg, "exit") == 0) {
+					error_mode = output_error_exit;
+				}
+				else if(strcmp(optarg, "exit-nopipe") == 0) {
+					error_mode = output_error_exit_nopipe;
+				}
+				else {
+					puts("Invalid error mode");
+					exit(1);
+					}
+	            break;
 
-    switch (c)
-        {
-        case 0:
-          /* If this option set a flag, do nothing else now. */
-          if (long_options[option_index].flag != 0)
-            break;
-          printf ("option %s", long_options[option_index].name);
-          if (optarg)
-            printf (" with arg %s", optarg);
-          printf ("\n");
-          break;
+	        case 'i':
+	        	printf("Unimplemented ignore-interrupts\n");
+	        	break;
 
-        case 'a':
-          printf("option -a\n");
-          break;
+	        case 'p':
+	        	error_mode = output_error_warn_nopipe;
+	        	break;
 
-        case 'o':
-          printf ("option -o with value `%s'\n", optarg);
-          break;
+	        case '?':
+	        	/* error already displayed by getopt_long */
+	        	break;
 
-        case 'i':
-          printf ("option -i\n");
-          break;
-
-        case 'p':
-          printf ("option -p\n");
-          break;
-
-        case '?':
-          /* getopt_long already printed an error message. */
-          break;
-
-        default:
-          abort ();
-        }
+	        default:
+	        	abort();
+		}
 	}
 
-	if (help_flag) {
-    	help_disp();
-    	exit(0);
-	}
-	if (version_flag) {
-		version_disp();
-		exit(0);
-	}
-
-  /* Print any remaining command line arguments (not options). */
-  if (optind < argc)
-    {
-      printf ("non-option ARGV-elements: ");
-      while (optind < argc)
-        printf ("%s ", argv[optind++]);
-      putchar ('\n');
-    }
-
-  exit (0);
+	// Do the functionality
+	exitval = tee_loop(argc - optind, &argv[optind]);
+	
+	return exitval;
 }
 
 // Prints the version when the version flag is specified
-void version_disp() {
+int version_disp() {
 	puts("Version:");
 	puts("\tKeil 1.0, Spring 2018");
+	return 0;
 }
 
 // Prints all the help information when help flag is specified
-void help_disp() {
-	puts("NAME");
-	puts("\ttee - read from standard input and write to standard output and files");
-	puts("SYNOPSIS");
-	puts("\ttee [OPTION]... [FILE]...");
-	puts("DESCRIPTION");
-	puts("\tCopy standard input to each FILE, and also to standard output.");
-	puts("\t\t-a, --append");
-	puts("\t\t\tappend to the given FILEs, do not overwrite");
-	puts("");
-	puts("\t\t-i, --ignore-interrupts");
-	puts("\t\t\tignore interupt signals");
-	puts("");
-	puts("\t\t-p");
-	puts("\t\t\tdiagnose errors writing to non pipes");
-	puts("");
-	puts("\t\t--output-error[=MODE]");
-	puts("\t\t\tset behavior on write error.  See MODE below");
-	puts("");
-	puts("\t\t--help");
-	puts("\t\t\tdisplay this help and exit");
-	puts("");
-	puts("\t\t--version");
-	puts("\t\t\toutput version information and exit");
-	puts("");
+int help_disp() {
 
-	puts("MODE determines behavior with write errors and outputs:");
-	puts("\t\t'warn'");
-	puts("\t\t\tdiagnose errors writing to any output");
-	puts("");
-	puts("\t\t'warn-nopipe'");
-	puts("\t\t\tdiagnose erros writing to any output not a pipe");
-	puts("");
-	puts("\t\t'exit'");
-	puts("\t\t\texit on error writing to any output");
-	puts("");
-	puts("\t\t'exit-nopipe'");
-	puts("\t\t\texit on error writing to any output not a pipe");
-	puts("");
-	puts("\t\tThe default MODE for the -p option is 'warn-nopipe'.  The default");
-	puts("\t\toperation when --output-error is not specified, is to exit");
-	puts("\t\timmediately on error writing to a pipe, and diagnose errors writing");
-	puts("\t\tto non pipe outputs.");
+    FILE *fptr;
+ 
+    char filename[100] = "help.txt", c;
+ 
+    // Open file
+    fptr = fopen(filename, "r");
+    if (fptr == NULL)
+    {
+        printf("Cannot open file \n");
+        exit(0);
+    }
+ 
+    // Read contents from file
+    c = fgetc(fptr);
+    while (c != EOF)
+    {
+        printf ("%c", c);
+        c = fgetc(fptr);
+    }
+ 
+    fclose(fptr);
+    return 0;
+}
+
+/* Open the files and begin to read information */
+int tee_loop(int nfiles, char **files) {
+	FILE** filenames = malloc(sizeof(FILE*) * (nfiles));  // Set up space for files
+	int i, wval; // Index and status check
+	char rval; // fgets status check
+	char line[256]; // maximum line length
+	char const *read_mode = append_flag ? "a" : "w"; // Either append or don't
+
+	filenames[0] = stdout; // set the first argument to stdout
+
+	for(i = 1; i <= nfiles; i++) {
+		// Open all the files
+		filenames[i] = fopen(files[i - 1], read_mode);
+		if (!filenames[i]) { // If the file can't be opened/made, error
+    		printf("error: cannot open file %s\n", files[i-1]);
+    		if(error_mode == output_error_exit || output_error_exit_nopipe)
+  		  		{exit(1);} // error out if output error exit is true
+  		}
+  	}
+  	while (fgets(line, sizeof(line), stdin)){ // as long as we haven't hit null, keep reading
+  		for(i = 0; i <= nfiles; i++) { // for everything (stdout and all files), write
+  			if(filenames[i] && (wval = fputs(line, filenames[i])) != EOF) { // while there are actual files and we haven't hit an error, keep going
+  				// This part was taken from one of the professional website, as I was having issues figuring out error checking
+  				int fail = errno != EPIPE || (error_mode == output_error_exit
+                                          || error_mode == output_error_warn);
+	            if (filenames[i] == stdout) {
+	            	clearerr (stdout); /* Avoid redundant close_stdout diagnostic.  */
+	            }
+	            if (fail && error_mode == output_error_exit
+	                       || error_mode == output_error_exit_nopipe){
+	                printf("write error to %s\n", files[i-1]);
+	            	exit(1);
+	            }
+  			}
+  		}
+  	}
+  	// If we didn't hit the end of the file, there was a read error somewhere in there
+  	if (!feof(stdin)) {
+  		puts("read error");
+  		exit(1);
+  	}
+
+  	for(i = 1; i <= nfiles; i++) {
+  		// Something in here is throwing an error. It works, but there is a double free error thrown
+  		// if multiple files are called.
+  		if(NULL != filenames[i]) {
+  			if(fclose(filenames[i]) != 0) {
+  				puts("error closing");
+  				exit(1);
+  			}
+  		}
+  	}
+  	return 1;
 }

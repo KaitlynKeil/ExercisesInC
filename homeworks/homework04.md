@@ -2,9 +2,10 @@
 
 ### C Exercises
 
-Modify the link below so it points to the `ex03` directory in your
+Modify the link below so it points to the `ex04` directory in your
 student repository.
 
+<<<<<<< HEAD
 [Here is a link to the ex03 directory in my repository](https://github.com/KaitlynKeil/ExercisesInC/tree/master/exercises/ex02.5)
 
 ### Think OS Chapter 4 reading questions
@@ -47,3 +48,9 @@ If you would like to learn more about file systems, a good next step is to learn
 Start with [this Wikipedia article](https://en.wikipedia.org/wiki/Journaling_file_system), then 
 [Anatomy of Linux Journaling File Systems](http://www.ibm.com/developerworks/library/l-journaling-filesystems/index.html).  
 Also consider reading [this USENIX paper](https://www.usenix.org/legacy/event/usenix05/tech/general/full_papers/prabhakaran/prabhakaran.pdf).
+=======
+[Here is a link to the ex03 directory in my repository](https://github.com/YOUR_GITHUB_USERNAME_HERE/ExercisesInC/tree/master/exercises/ex04)
+
+
+There are no reading questions from Think OS for this homework.
+>>>>>>> af6015fd869d00aeb2fc4e2871b4df7a3ff9d2e7

@@ -7,5 +7,4 @@ student repository.
 
 [Here is a link to the ex03 directory in my repository](https://github.com/KaitlynKeil/ExercisesInC/tree/master/exercises/ex04)
 
-
 There are no reading questions from Think OS for this homework.

@@ -69,9 +69,11 @@ x, y: coordinates
 returns: new Rectangle; use free_rectangle to free
 */
 Rectangle *make_rectangle(Point *corner, double width, double height) {
-    // FILL THIS IN
-    // What are the pros and cons of making a copy of corner?
-    return NULL;
+    Rectangle *rec = malloc(sizeof(Rectangle));
+    rec->corner = make_point(corner->x, corner->y);
+    rec->width = width;
+    rec->height = height;
+    return rec;
 }
 
 /* Return string representation
@@ -92,7 +94,8 @@ char *rectangle_to_string(Rectangle *rectangle) {
 rectangle: Rectangle
 */
 void free_rectangle(Rectangle *rectangle) {
-    // FILL THIS IN
+    free(rectangle->corner);
+    free(rectangle);
 }
 
 /* Check whether a point is inside a rectangle.
@@ -104,8 +107,13 @@ On the line is in.
 returns: 1 if the point is in the rectangle, else 0
 */
 int point_in_rect(Point *p, Rectangle *rect) {
-    // FILL THIS IN
-
+	double left = rect->corner->x;
+	double bottom = rect->corner->y;
+    if(p->x >= left && p->x <= left+rect->width) {
+    	if(p->y >= bottom && p->y <= bottom+rect->height) {
+    		return 1;
+    	}
+    }
     return 0;
 }
 
@@ -123,6 +131,7 @@ void test_rectangle()
     Rectangle *rectangle = make_rectangle(corner, 5.0, 6.0);
     char *s = rectangle_to_string(rectangle);
     printf("%s\n", s);
+    free_point(corner);
     free_rectangle(rectangle);
 }
 
@@ -156,5 +165,7 @@ void main (int argc, char *argv[])
 
     test_point_in_rect(point2, rectangle);
 
+    free_point(corner);
+    free_point(point2);
     free_rectangle(rectangle);
 }

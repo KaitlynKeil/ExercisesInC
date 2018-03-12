@@ -19,17 +19,7 @@ MIT License
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#define BUFSIZE 100
-
-typedef struct {
-    double x, y;
-} Point;
-
-typedef struct {
-    Point *corner;
-    double width, height;
-} Rectangle;
+#include "shapes.h"
 
 /* Return a new Point
 
@@ -116,6 +106,7 @@ int point_in_rect(Point *p, Rectangle *rect) {
     }
     return 0;
 }
+<<<<<<< HEAD
 
 void test_point()
 {
@@ -169,3 +160,5 @@ void main (int argc, char *argv[])
     free_point(point2);
     free_rectangle(rectangle);
 }
+=======
+>>>>>>> f1730219000dea2729d3a9625259830250492bea

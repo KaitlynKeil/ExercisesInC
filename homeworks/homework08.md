@@ -2,7 +2,14 @@
 
 ### C Exercises
 
+<<<<<<< HEAD
 [Here is a link to the ex08 directory in my repository](https://github.com/KaitlynKeil/ExercisesInC/tree/master/exercises/ex08)
+=======
+Modify the link below so it points to the `ex08` directory in your
+student repository.
+
+[Here is a link to the ex08 directory in my repository](https://github.com/YOUR_GITHUB_USERNAME_HERE/ExercisesInC/tree/master/exercises/ex08)
+>>>>>>> 4d6813e90864d552beb5025d51333ea5c4e61ba6
 
 ### Think OS Chapter 8 reading questions
 

@@ -18,6 +18,7 @@ License: MIT License https://opensource.org/licenses/MIT
 // errno is an external global variable that contains
 // error information
 extern int errno;
+int glob_check = 0;
 
 
 // get_seconds returns the number of seconds since the
@@ -32,8 +33,14 @@ double get_seconds() {
 
 void child_code(int i)
 {
-    sleep(i);
-    printf("Hello from child %d.\n", i);
+    // sleep(i);
+    int *heap_test = malloc(sizeof(int));
+    int j = 0;
+    // If they share a stack, the addresses should be similar for stack and heap
+    printf("Heap Location child %d: %p\n", i, heap_test);
+    printf("Stack test child %d: %p\n", i, &j);
+    glob_check += 10; // If they share globals, this should increment by 10 for each
+    printf("Hello from child %d, global is %d.\n", i, glob_check);
 }
 
 // main takes two parameters: argc is the number of command-line
@@ -79,6 +86,7 @@ int main(int argc, char *argv[])
 
     /* parent continues */
     printf("Hello from the parent.\n");
+    printf("Parent Global: %d\n", glob_check); // If the children changed the global for everyone, this should not be 0
 
     for (i=0; i<num_children; i++) {
         pid = wait(&status);

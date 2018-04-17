@@ -72,22 +72,25 @@ void join_thread(pthread_t thread)
 
 void child_code(Shared *shared)
 {
-  mutex_lock(shared->mutex);
+  // mutex_lock(shared->mutex);
   // printf("Starting child at counter %d\n", shared->counter);
 
   while (1) {
     if (shared->counter >= shared->end) {
-      mutex_unlock(shared->mutex);
+      // mutex_unlock(shared->mutex);
       return;
     }
+    mutex_lock(shared->mutex);
     shared->array[shared->counter]++;
     shared->counter++;
 
+    // mutex_lock(shared->mutex);
     if (shared->counter % 10000 == 0) {
-      // printf("%d\n", shared->counter);
-    }
+    	int t = shared->counter;
+    	mutex_unlock(shared->mutex);
+      printf("%d\n", t);
+    } else {mutex_unlock(shared->mutex);}
   }
-  mutex_unlock(shared->mutex);
 }
 
 void *entry(void *arg)
@@ -107,7 +110,7 @@ void check_array(Shared *shared)
   for (i=0; i<shared->end; i++) {
     if (shared->array[i] != 1) errors++;
   }
-  // printf("%d errors.\n", errors);
+  printf("%d errors.\n", errors);
 }
 
 int main()

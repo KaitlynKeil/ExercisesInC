@@ -54,10 +54,17 @@ void print_matrix(Matrix *matrix) {
     }
 }
 
+int comparator(const void *p, const void *q){
+    double r1 = *(double *)p;
+    double r2 = *(double *)q;
+    if(r1 > r2) {return -1;}
+    else if (r1 == r2) {return 0;}
+    return 1;
+}
 /* Sort rows in descending order by first element.
 */
 void sort_matrix_rows(Matrix *matrix) {
-    // TODO: Write this function
+    qsort((void*)matrix->rows, matrix->num_rows, sizeof(matrix->rows[0]), comparator);
 }
 
 /* Perform row reduction.

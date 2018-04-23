@@ -31,11 +31,31 @@ char *advice[] = {
     "\nYou might want to rethink that haircut.\r\n"
 };
 
+int read_in(int socket, char *buf, int len) {
+    char *s = buf;
+    int slen = len;
+    int c = recv(socket, s, slen, 0);
+    while ((c > 0) && (s[c-1] != '\n')) {
+        s += c; slen -= c;
+        c = recv(socket, s, slen, 0);
+    }
+    if (c < 0) {
+        return c;
+    }
+    else if (c == 0) {
+        buf[0] = '\0';
+    }
+    else {
+        s[c-1] = '\0';
+    }
+    return len - slen;
+}
 
 int main()
 {
     // create the listening socket
     int listener_d = socket(PF_INET, SOCK_STREAM, 0);
+    char buf[255];
     if (listener_d == -1)
         error("socket failed.");
 
@@ -84,6 +104,14 @@ int main()
         res = send(connect_d, msg, strlen(msg), 0);
         if (res == -1)
             error("send failed.");
+
+        res = read_in(connect_d, buf, sizeof(buf));
+        if (res == -1)
+            error("recv failed");
+        else if (strncasecmp("no more", buf, 7)) {
+            char *msg = advice[rand() % 5 ];
+            send(connect_d, msg, strlen(msg), 0);
+        }
 
         close(connect_d);
     }

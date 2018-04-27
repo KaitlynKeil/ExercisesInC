@@ -24,9 +24,13 @@ If you wanted a queue, you might want the initial value to be the number of item
 4) In my solution to the producers-consumers problem using Semaphores,
 what does it mean if the value of `queue->spaces` is `3` at some point in time?
 
+<<<<<<< HEAD
 There are 3 empty spaces in the queue, so 3 threads can execute queue_push without blocking.
 
 5) What does it mean if `queue->space` is `-3`?
+=======
+5) What does it mean if `queue->spaces` is `-3`?
+>>>>>>> 2eb34b55a445205fcd24f378435b99c86d925853
 
 We just ran out of space hard. Something probably broke.
 

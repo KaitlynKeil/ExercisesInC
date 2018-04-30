@@ -52,8 +52,8 @@ void child_code(Shared *shared)
     shared->counter++;
     while (shared->counter < NUM_CHILDREN) {
         cond_wait(shared->all_done, shared->mutex);
-        cond_signal(shared->all_done);
     }
+    cond_signal(shared->all_done);
     printf("Child part 2\n");
     mutex_unlock(shared->mutex);
 }
